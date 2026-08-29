@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelo World 2D - Action RPG</title>
+    <title>Kelo World 2D</title>
     <style>
         * {
             margin: 0;
@@ -12,99 +12,61 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
             background: #0a0e27;
-            overflow: hidden;
-        }
-
-        #gameContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 100vw;
             height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: Arial, sans-serif;
         }
 
         canvas {
-            display: block;
+            border: 2px solid #fff;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
 
         #ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .hud {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             color: #fff;
             font-size: 14px;
-            z-index: 100;
-        }
-
-        .health-bar {
-            width: 200px;
-            height: 30px;
-            background: #333;
-            border: 2px solid #fff;
-            margin-top: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .health-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff00, #00aa00);
-            width: 100%;
-            transition: width 0.2s ease;
-        }
-
-        .health-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px #000;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 5px;
         }
 
         .mobile-controls {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             width: 100%;
             display: none;
             justify-content: space-between;
             align-items: flex-end;
             padding: 0 20px;
-            pointer-events: auto;
+            z-index: 100;
         }
 
         .mobile-controls.active {
             display: flex;
         }
 
-        .joystick-container {
+        .joystick {
             width: 120px;
             height: 120px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             position: relative;
+            touch-action: none;
         }
 
         .joystick-thumb {
             width: 50px;
             height: 50px;
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.6);
             border-radius: 50%;
             position: absolute;
             top: 50%;
@@ -112,121 +74,42 @@
             transform: translate(-50%, -50%);
         }
 
-        .attack-button {
+        .attack-btn {
             width: 100px;
             height: 100px;
             background: radial-gradient(circle, #ff4444, #cc0000);
             border: 3px solid #ff8888;
             border-radius: 50%;
+            font-size: 40px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            cursor: pointer;
             user-select: none;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            pointer-events: auto;
         }
 
-        .attack-button:active {
+        .attack-btn:active {
             transform: scale(0.9);
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
-        }
-
-        .dash-button {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, #4444ff, #0000cc);
-            border: 3px solid #8888ff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            cursor: pointer;
-            user-select: none;
-            box-shadow: 0 0 15px rgba(0, 0, 255, 0.5);
-            pointer-events: auto;
-            margin-right: 20px;
-        }
-
-        .dash-button:active {
-            transform: scale(0.9);
-            box-shadow: 0 0 25px rgba(0, 0, 255, 0.8);
-        }
-
-        .info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #aaa;
-            font-size: 12px;
-            z-index: 100;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-controls.active {
-                display: flex;
-            }
-
-            .hud {
-                font-size: 12px;
-            }
-
-            .health-bar {
-                width: 150px;
-            }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer"></div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
     <div id="ui">
-        <div class="hud">
-            <div>Player Health</div>
-            <div class="health-bar">
-                <div class="health-bar-fill" id="healthBarFill"></div>
-                <div class="health-text" id="healthText">100/100</div>
-            </div>
-        </div>
-        <div class="info">
-            <div id="fps">FPS: 60</div>
-            <div id="pos">Pos: 0, 0</div>
-            <div id="controls">PC: WASD + Click | SPACE: Dash</div>
-        </div>
-        <div class="mobile-controls" id="mobileControls">
-            <div>
-                <div class="joystick-container" id="joystickContainer">
-                    <div class="joystick-thumb" id="joystickThumb"></div>
-                </div>
-            </div>
-            <div>
-                <button class="dash-button" id="dashButton">⚡</button>
-                <button class="attack-button" id="attackButton">⚔️</button>
-            </div>
-        </div>
+        <div>Player HP: <span id="hp">100</span>/100</div>
+        <div>Enemy HP: <span id="enemyHp">50</span>/50</div>
+        <div id="fps" style="margin-top: 10px; color: #aaa;">FPS: 60</div>
     </div>
 
-    <!-- Phaser 3 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <div class="mobile-controls" id="mobileControls">
+        <div class="joystick" id="joystick">
+            <div class="joystick-thumb" id="joystickThumb"></div>
+        </div>
+        <button class="attack-btn" id="attackBtn">⚔️</button>
+    </div>
 
-    <!-- Game Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/systems/MovementSystem.js"></script>
-    <script src="js/systems/CombatSystem.js"></script>
-    <script src="js/systems/AnimationController.js"></script>
-    <script src="js/input/InputManager.js"></script>
-    <script src="js/input/KeyboardInput.js"></script>
-    <script src="js/input/TouchInput.js"></script>
-    <script src="js/entities/Player.js"></script>
-    <script src="js/entities/Enemy.js"></script>
-    <script src="js/camera/CameraController.js"></script>
-    <script src="js/world/WorldBuilder.js"></script>
-    <script src="js/scenes/MainScene.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>
